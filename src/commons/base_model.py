@@ -3,7 +3,7 @@ from typing import Protocol
 class BaseModel(Protocol):
     """Base interface for models."""
 
-    def load_model(self, model_name: str, device: str):
+    def load_model():
         """
         Load the model and tokenizer.
         Args:

@@ -31,7 +31,7 @@ class AudioGenerator(BaseModel):
         """
         
         if self.model is None or self.tokenizer is None:
-            self.load_model(self.model_name, self.device)
+            self.load_model()
 
         generated_audios = []
         for section, token in text.items():
