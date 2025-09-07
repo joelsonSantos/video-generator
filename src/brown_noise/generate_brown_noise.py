@@ -2,6 +2,8 @@ import numpy as np
 import soundfile as sf
 import torch
 
+from tqdm import tqdm
+
 from typing import Any
 
 from commons.base_model import BaseModel
@@ -48,7 +50,7 @@ class BrownNoiseGenerator(BaseModel):
     def combine(self, media_list):
         # Combining audios with pause
         final_audio = media_list[0]
-        for second_audio in media_list[1:]:
+        for second_audio in tqdm(media_list[1:], desc="combining audios"):
             final_audio = torch.cat((torch.from_numpy(final_audio), torch.from_numpy(second_audio)), dim=0)
             final_audio = final_audio.numpy()
 
