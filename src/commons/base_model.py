@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, Any
 
 class BaseModel(Protocol):
     """Base interface for models."""
@@ -12,12 +12,31 @@ class BaseModel(Protocol):
         """
         ... 
 
-    def generate(self, text: dict|str) -> str:
+    def generate(self, text: str) -> str:
         """
         Generate output from the model.
         Args:
-            text (dict): Input text data.
+            text (str): Input text data.
         Returns:
             str: Generated output path.
         """
         ...
+
+    def combine(self, media_list: list) -> Any:
+        """
+        Combine multiple media into a single file
+        Args:
+            media_list (list): sound_track, audio, images
+        Returns:
+            Any: sound_track, audio, images.
+        """
+        ...
+
+    def save(self, media: Any) -> str:
+        """
+        Saving in a file the media
+        Args:
+            media (Any): audio, image, sound_track
+        Returns:
+            str: Generated output path
+        """

@@ -21,11 +21,11 @@ class AudioGenerator(BaseModel):
         self.model = VitsModel.from_pretrained(self.model_name).to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
-    def generate(self, text: dict) -> str:
+    def generate(self, text: str) -> str:
         """
         Generate audio from text using the specified model.
         Args:
-            text (dict): Input text data.
+            text (str): Input text data.
         Returns:
             str: Path to the generated audio file.
         """
@@ -33,29 +33,34 @@ class AudioGenerator(BaseModel):
         if self.model is None or self.tokenizer is None:
             self.load_model()
 
-        generated_audios = []
-        for section, token in text.items():
-            print(f"Processing section: '{section}'")
+        inputs = self.tokenizer(text, return_tensors="pt").to(self.device)
+        with torch.no_grad():
+            output = self.model(**inputs).waveform
 
-            inputs = self.tokenizer(token, return_tensors="pt").to(self.device)
-            with torch.no_grad():
-                output = self.model(**inputs).waveform
+        audio_data = output.squeeze().cpu().numpy()
+        
+        # save audio
+        self.save(audio_data)
 
-            audio_data = output.squeeze().cpu().numpy()
-            generated_audios.append(audio_data)
+        return audio_data
 
+    def combine(self, media_list: list) -> str:
         sampling_rate = self.model.config.sampling_rate
         silence = torch.zeros(int(sampling_rate * self.silence))
 
         # Combining audios with pause
-        final_audio = generated_audios[0]
-        for second_audio in generated_audios[1:]:
+        final_audio = media_list[0]
+        for second_audio in media_list[1:]:
             final_audio = torch.cat((torch.from_numpy(final_audio), silence, torch.from_numpy(second_audio)), dim=0)
             final_audio = final_audio.numpy()
 
         # --- 5. Salving final final
-        sf.write(self.output_path, final_audio, sampling_rate)
-        return self.output_path
+        sf.write("combined_" + self.output_path, final_audio, sampling_rate)
+        return "combined_" + self.output_path
 
-
+    def save(self, media) -> str:
+        sampling_rate = self.model.config.sampling_rate
+        silence = torch.zeros(int(sampling_rate * self.silence))
+        sf.write(self.output_path, media, sampling_rate)
+        
 
