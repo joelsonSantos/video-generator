@@ -12,7 +12,7 @@ class BaseModel(Protocol):
         """
         ... 
 
-    def generate(self, text: dict) -> str:
+    def generate(self, text: dict|str) -> str:
         """
         Generate output from the model.
         Args:
