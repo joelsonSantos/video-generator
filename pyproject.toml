@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "video-generator"
+version = "0.1.0"
+description = "AI video generator using Hugging Face models"
+authors = ["joelsonsantos <joelsonn.santos@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.14"
+torch = "^2.8.0"
+transformers = "^4.56.1"
+soundfile = "^0.13.1"
+moviepy = "^2.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
