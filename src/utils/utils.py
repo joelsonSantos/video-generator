@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from moviepy import AudioFileClip, VideoClip
+from moviepy import AudioFileClip, ImageClip, VideoClip
 from scipy.io import wavfile
 from scipy.signal import spectrogram
 
@@ -60,3 +60,19 @@ def audio_to_spectrogram_video(audio_path: str, output_path: str, fps: int =30) 
     # export
     video.write_videofile(output_path, fps=fps)
     return output_path
+
+
+def merge_image_audio_to_video(image_file: str, audio_file: str, output_file: str = "output.mp4") -> str:
+    """
+    Create a MP4 video from a static figure and a wav audio file.
+    
+    Args:
+        image_file (str): image path (jpg/png).
+        audio_file (str): audio path (wav).
+        output_file (str): output path.
+    """
+    audioclip = AudioFileClip(audio_file)
+    imageclip = ImageClip(image_file).with_duration(audioclip.duration)
+    videoclip = imageclip.with_audio(audioclip)
+    videoclip.write_videofile(output_file, fps=1)
+    return output_file

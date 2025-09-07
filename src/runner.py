@@ -2,7 +2,7 @@ import torch
 from audio.generate_audio import AudioGenerator
 from soundtrack.generate_soundtrack import SoundTrackGenerator
 from brown_noise.generate_brown_noise import BrownNoiseGenerator
-from utils.utils import audio_to_spectrogram_video
+from utils.utils import audio_to_spectrogram_video, merge_image_audio_to_video
 
 AUDIO_MODEL_NAME = "facebook/mms-tts-por"
 SOUNDTRACK_MODEL_NAME = "facebook/musicgen-small"
@@ -44,5 +44,6 @@ if __name__ == "__main__":
     brown.combine(media_list=[noise] * 60)
 
     print("Creating video from audio")
-    audio_to_spectrogram_video("combined_naive_brown_noise.wav", "brown_noise_spectrogram.mp4")
+    # audio_to_spectrogram_video("combined_naive_brown_noise.wav", "brown_noise_spectrogram.mp4")
+    merge_image_audio_to_video(image_file="noise.jpg", audio_file="combined_naive_brown_noise.wav", output_file="output.mp4")
 
