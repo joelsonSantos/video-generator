@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from moviepy import AudioFileClip, ImageClip, VideoClip
+from moviepy import AudioFileClip, ImageClip, VideoClip, concatenate_videoclips
 from scipy.io import wavfile
 from scipy.signal import spectrogram
 
@@ -61,18 +61,39 @@ def audio_to_spectrogram_video(audio_path: str, output_path: str, fps: int =30) 
     video.write_videofile(output_path, fps=fps)
     return output_path
 
-
-def merge_image_audio_to_video(image_file: str, audio_file: str, output_file: str = "output.mp4") -> str:
+def merge_images_audio_to_video(image_files: list[str], audio_file: str, output_file: str = "output.mp4") -> str:
     """
-    Create a MP4 video from a static figure and a wav audio file.
+    Create an MP4 video from a set of images and a WAV audio file.
+    Each image will be displayed for an equal duration.
     
     Args:
-        image_file (str): image path (jpg/png).
-        audio_file (str): audio path (wav).
+        image_files (list[str]): list of image paths (jpg/png).
+        audio_file (str): path to audio file (wav).
         output_file (str): output path.
+    
+    Returns:
+        str: Path to the generated video.
     """
+    # Load audio
     audioclip = AudioFileClip(audio_file)
-    imageclip = ImageClip(image_file).with_duration(audioclip.duration)
-    videoclip = imageclip.with_audio(audioclip)
-    videoclip.write_videofile(output_file, fps=1)
+    total_duration = audioclip.duration
+    
+    # Divide time equally among images
+    duration_per_image = total_duration / len(image_files)
+    
+    # Create a clip for each image
+    clips = [
+        ImageClip(img).with_duration(duration_per_image)
+        for img in image_files
+    ]
+    
+    # Concatenate image clips into a slideshow
+    slideshow = concatenate_videoclips(clips, method="compose")
+    
+    # Add audio
+    final_video = slideshow.with_audio(audioclip)
+    
+    # Export
+    final_video.write_videofile(output_file, fps=1)
+    
     return output_file
