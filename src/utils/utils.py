@@ -1,5 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+from pydub import AudioSegment
+
 from moviepy import AudioFileClip, ImageClip, VideoClip, concatenate_videoclips
 from scipy.io import wavfile
 from scipy.signal import spectrogram
@@ -96,4 +99,44 @@ def merge_images_audio_to_video(image_files: list[str], audio_file: str, output_
     # Export
     final_video.write_videofile(output_file, fps=1)
     
+    return output_file
+
+def combine_audio_with_soundtrack(
+    main_audio_file: str,
+    soundtrack_file: str,
+    output_file: str = "output.wav",
+    soundtrack_volume: float = -10.0
+) -> str:
+    """
+    Combine a main audio file with a background soundtrack.
+    
+    Args:
+        main_audio_file (str): Path to main audio file (e.g., WAV).
+        soundtrack_file (str): Path to soundtrack file (e.g., MP3/WAV).
+        output_file (str): Output file path.
+        soundtrack_volume (float): Volume adjustment for soundtrack (in dB, negative to lower).
+    
+    Returns:
+        str: Path to combined audio file.
+    """
+    # Load audio
+    main_audio = AudioSegment.from_file(main_audio_file)
+    soundtrack = AudioSegment.from_file(soundtrack_file)
+
+    # Adjust soundtrack volume
+    soundtrack = soundtrack + soundtrack_volume
+
+    # Loop soundtrack if shorter than main audio
+    if len(soundtrack) < len(main_audio):
+        times = (len(main_audio) // len(soundtrack)) + 1
+        soundtrack = soundtrack * times
+
+    # Trim soundtrack to match main audio length
+    soundtrack = soundtrack[:len(main_audio)]
+
+    # Overlay
+    combined = main_audio.overlay(soundtrack)
+
+    # Export
+    combined.export(output_file, format="wav")
     return output_file

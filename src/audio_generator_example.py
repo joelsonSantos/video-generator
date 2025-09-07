@@ -3,9 +3,12 @@ import torch
 from tqdm import tqdm
 
 from audio.generate_audio import AudioGenerator
-from utils.utils import merge_images_audio_to_video
+from soundtrack.generate_soundtrack import SoundTrackGenerator
+
+from utils.utils import merge_images_audio_to_video, combine_audio_with_soundtrack
 
 AUDIO_MODEL_NAME = "facebook/mms-tts-por"
+SOUNDTRACK_MODEL_NAME = "facebook/musicgen-small"
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -36,14 +39,46 @@ if __name__ == "__main__":
                     device=DEVICE,
                     output_path=f"{count_token}.wav"
                 )
-                print(f"Generating for key={key}")
+                print(f"Generating for key={key}:{count_token}")
                 audio_data = audio_generator.generate(text=token)
                 audios.append(audio_data)
                 count_token += 1
     
-    # combininfg audios
+    # combining audios
     output_name = audio_generator.combine(media_list=audios)
 
+    # generate sound track
+    print("Generating sound track...")
+    sound_generator = SoundTrackGenerator(
+        model_name=SOUNDTRACK_MODEL_NAME,
+        device=DEVICE,
+        output_path="misterious.wav",
+        number_tokens=512
+    )
+    misterious_audio_output = sound_generator.generate(text="A mysterious and curious soundtrack, atmospheric and immersive, with soft rhythmic pulses, subtle textures, and evolving harmonies. No vocals, no sudden changes, just a continuous background mood that feels intriguing and enigmatic.")
+    # combining noise audios (1 hour) 
+    print("Combining results for misterious audio") 
+    soundtrack_output = sound_generator.combine([misterious_audio_output.cpu().numpy().squeeze()] * 720) 
 
+    # combining audio with soundtrack
+    output_track = combine_audio_with_soundtrack(
+        main_audio_file=output_name,
+        soundtrack_file=soundtrack_output,
+        output_file="final_audio.wav"
+    )
 
-    
+    # compite final audio with images
+    images = [
+        "tatu-1.jpeg",
+        "tatu-2.jpeg",
+        "tatu-3.jpeg",
+        "tatu-4.jpeg",
+        "tatu-5.jpeg"
+    ]
+
+    print("Merging final audio to video images")
+    merge_images_audio_to_video(
+        image_files=images, 
+        audio_file="final_audio.wav", 
+        output_file="tatu-canastra-final.mp4"
+    )

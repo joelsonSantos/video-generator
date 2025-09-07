@@ -17,6 +17,7 @@ scipy = "^1.16.1"
 matplotlib = "^3.10.6"
 imageio = {extras = ["ffmpeg"], version = "^2.37.0"}
 tqdm = "^4.67.1"
+pydub = "^0.25.1"
 
 
 [build-system]
