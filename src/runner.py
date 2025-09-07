@@ -41,9 +41,8 @@ if __name__ == "__main__":
 
     noise = brown.generate()
     print("Combing noise - 1 hour")
-    brown.combine(media_list=[noise] * 60)
+    brown.combine(media_list=[noise] * 14)
 
     print("Creating video from audio")
     # audio_to_spectrogram_video("combined_naive_brown_noise.wav", "brown_noise_spectrogram.mp4")
-    merge_image_audio_to_video(image_file="noise.jpg", audio_file="combined_naive_brown_noise.wav", output_file="output.mp4")
-
+    merge_image_audio_to_video(image_file="noise.jpg", audio_file="combined_naive_brown_noise.wav", output_file="output_15min.mp4")
